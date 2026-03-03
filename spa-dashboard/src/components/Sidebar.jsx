@@ -6,23 +6,53 @@ import LogoutIcon from '@mui/icons-material/Logout';
 import { Link } from 'react-router-dom';
 import SettingIcon from '@mui/icons-material/Settings';
 
-const utilityLinks = [
-    { label: 'Users', tab: '1', section: 'users' },
-    { label: 'Accounts', tab: '1', section: 'accounts' },
-    { label: 'Farms', tab: '2', section: 'farms' },
-    { label: 'Farmer', tab: '2', section: 'farmer' },
-    { label: 'Equipment', tab: '3', section: 'equipment' },
-    { label: 'Supplies', tab: '3', section: 'supplies' },
-    { label: 'Farm Supplies', tab: '3', section: 'farm_supplies' },
-    { label: 'Financial Record', tab: '3', section: 'financial_record' },
-    { label: 'Pest Disease Event', tab: '4', section: 'pest_disease_event' },
-    { label: 'Event Log', tab: '4', section: 'event_log' },
-    { label: 'Weather Log', tab: '4', section: 'weather_log' },
-    { label: 'Planting Batch', tab: '5', section: 'planting_batch' },
-    { label: 'Production', tab: '5', section: 'production' },
-    { label: 'Harvests', tab: '5', section: 'harvests' },
-    { label: 'Sales', tab: '5', section: 'sales' },
-    { label: 'Crop Varieties', tab: '5', section: 'crop_varieties' },
+const utilityGroups = [
+    {
+        label: 'Accounts & User',
+        tab: '1',
+        links: [
+            { label: 'Users', section: 'users' },
+            { label: 'Accounts', section: 'accounts' }
+        ]
+    },
+    {
+        label: 'Farms Data',
+        tab: '2',
+        links: [
+            { label: 'Farms', section: 'farms' },
+            { label: 'Farmer', section: 'farmer' }
+        ]
+    },
+    {
+        label: 'Resource & Finance',
+        tab: '3',
+        links: [
+            { label: 'Equipment', section: 'equipment' },
+            { label: 'Supplies', section: 'supplies' },
+            { label: 'Farm Supplies', section: 'farm_supplies' },
+            { label: 'Financial Record', section: 'financial_record' }
+        ]
+    },
+    {
+        label: 'Monitoring & Logs',
+        tab: '4',
+        links: [
+            { label: 'Pest Disease Event', section: 'pest_disease_event' },
+            { label: 'Event Log', section: 'event_log' },
+            { label: 'Weather Log', section: 'weather_log' }
+        ]
+    },
+    {
+        label: 'Sales & Crops',
+        tab: '5',
+        links: [
+            { label: 'Planting Batch', section: 'planting_batch' },
+            { label: 'Production', section: 'production' },
+            { label: 'Harvests', section: 'harvests' },
+            { label: 'Sales', section: 'sales' },
+            { label: 'Crop Varieties', section: 'crop_varieties' }
+        ]
+    }
 ]
 
 const Sidebar = () => {
@@ -49,14 +79,28 @@ const Sidebar = () => {
                         </Link>
 
                         <div className="util-dropdown">
-                            {utilityLinks.map((item) => (
-                                <Link
-                                    key={`${item.tab}-${item.section}`}
-                                    to={`/utility?tab=${item.tab}&section=${item.section}`}
-                                    className="util-drop-item"
-                                >
-                                    {item.label}
-                                </Link>
+                            {utilityGroups.map((group) => (
+                                <div key={group.tab} className="util-group">
+                                    <Link
+                                        to={`/utility?tab=${group.tab}`}
+                                        className="util-drop-item util-group-item"
+                                    >
+                                        <span>{group.label}</span>
+                                        <span>›</span>
+                                    </Link>
+
+                                    <div className="util-sub-dropdown">
+                                        {group.links.map((item) => (
+                                            <Link
+                                                key={`${group.tab}-${item.section}`}
+                                                to={`/utility?tab=${group.tab}&section=${item.section}`}
+                                                className="util-drop-item"
+                                            >
+                                                {item.label}
+                                            </Link>
+                                        ))}
+                                    </div>
+                                </div>
                             ))}
                         </div>
                     </div>

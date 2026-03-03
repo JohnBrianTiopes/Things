@@ -177,10 +177,6 @@ const User = () => {
         }
     };
 
-    const handleClearNewUser = () => {
-        setNewUser(emptyNewUser);
-    };
-
     const startEdit = (row) => {
         setEditingId(row.user_id);
         setEditUser(row);
@@ -222,7 +218,7 @@ const User = () => {
 
     return (
         <Box>
-            <Box sx={{ display: 'flex', alignItems: 'center', gap: 1, minHeight: '60px', mb: '10px', flexWrap: 'wrap', overflowX: 'hidden' }}>
+            <Box sx={{ display: 'flex', alignItems: 'center', gap: 1, minHeight: '60px', mb: '10px', flexWrap: 'nowrap', pt: 1, pb: 0.5 }}>
                 <h2>Users</h2>
 
                 <SearchRoundedIcon
@@ -282,50 +278,71 @@ const User = () => {
                 {openAdd && (
                     <Box
                         sx={{
-                            width: '100%',
-                            flexBasis: '100%',
                             display: 'flex',
                             gap: 1,
                             alignItems: 'center',
-                            flexWrap: 'wrap',
+                            flexWrap: 'nowrap',
+                            maxWidth: '100%',
+                            overflowX: 'auto',
+                            overflowY: 'visible',
+                            pt: 1,
+                            pb: 0.5,
                         }}
                     >
-                        <TextField required label="Name" size="small"
-                            value={newUser.name}
-                            onChange={(e) => setNewUser({ ...newUser, name: e.target.value })}
-                        />
-                        <TextField required label="Email" size="small"
-                            value={newUser.email}
-                            onChange={(e) => setNewUser({ ...newUser, email: e.target.value })}
-                        />
-                        <TextField required label="Password" type="password" size="small" 
-                            value={newUser.password}
-                            onChange={(e) => setNewUser({ ...newUser, password: e.target.value })}
-                        />
-                        <TextField required label="Account ID" size="small"
-                            value={newUser.account_id}
-                            onChange={(e) => setNewUser({ ...newUser, account_id: e.target.value })}
-                        />
-                        <TextField required label="Role" size="small"
-                            value={newUser.role}
-                            onChange={(e) => setNewUser({ ...newUser, role: e.target.value })}
-                        />
-                        <Button
-                            variant="contained"
-                            disabled={Object.values(newUser).some(v => !v)}
-                            onClick={handleAddUser}
-                            sx={{ background: '#060745', flexShrink: 0 }}
-                        >
-                            Add
-                        </Button>
-                        <Button
-                            variant="outlined"
-                            onClick={handleClearNewUser}
-                            disabled={Object.values(newUser).every(v => !v)}
-                            sx={{ borderColor: '#060745', color: '#060745', flexShrink: 0 }}
-                        >
-                            Clear
-                        </Button>
+                        <Box sx={{ display: 'flex', gap: 1, flexWrap: 'nowrap' }}>
+                            <TextField
+                                required
+                                label="Name"
+                                size="small"
+                                value={newUser.name}
+                                onChange={(e) => setNewUser({ ...newUser, name: e.target.value })}
+                                sx={{ width: 170 }}
+                            />
+                            <TextField
+                                required
+                                label="Email"
+                                size="small"
+                                value={newUser.email}
+                                onChange={(e) => setNewUser({ ...newUser, email: e.target.value })}
+                                sx={{ width: 170 }}
+                            />
+                            <TextField
+                                required
+                                label="Password"
+                                type="password"
+                                size="small"
+                                value={newUser.password}
+                                onChange={(e) => setNewUser({ ...newUser, password: e.target.value })}
+                                sx={{ width: 170 }}
+                            />
+                            <TextField
+                                required
+                                label="Account ID"
+                                size="small"
+                                value={newUser.account_id}
+                                onChange={(e) => setNewUser({ ...newUser, account_id: e.target.value })}
+                                sx={{ width: 170 }}
+                            />
+                            <TextField
+                                required
+                                label="Role"
+                                size="small"
+                                value={newUser.role}
+                                onChange={(e) => setNewUser({ ...newUser, role: e.target.value })}
+                                sx={{ width: 170 }}
+                            />
+                        </Box>
+
+                        <Box sx={{ display: 'flex', gap: 1, alignItems: 'center', flexShrink: 0 }}>
+                            <Button
+                                variant="contained"
+                                disabled={Object.values(newUser).some(v => !v)}
+                                onClick={handleAddUser}
+                                sx={{ background: '#060745' }}
+                            >
+                                Add
+                            </Button>
+                        </Box>
                         {addError && (
                             <Box sx={{ color: '#dd5752', width: '100%', fontSize: 13 }}>
                                 {addError}

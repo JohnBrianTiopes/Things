@@ -78,6 +78,10 @@ export const SimpleCrudTable = ({
 
 	const [newRow, setNewRow] = React.useState(createEmptyRecord);
 	const [editRow, setEditRow] = React.useState({});
+	const isAddDisabled = React.useMemo(
+		() => fields.some((field) => String(newRow[field] ?? '').trim() === ''),
+		[fields, newRow]
+	);
 
 	const filteredRows = React.useMemo(() => {
 		if (!appliedSearch) return localRows;
@@ -192,7 +196,7 @@ export const SimpleCrudTable = ({
 
 	return (
 		<Box sx={{ mt: 3 }}>
-			<Box sx={{ display: 'flex', alignItems: 'center', gap: 1, minHeight: '40px', mb: '10px', flexWrap: 'wrap' }}>
+			<Box sx={{ display: 'flex', alignItems: 'center', gap: 1, minHeight: '40px', mb: '10px', flexWrap: 'nowrap', pt: 1, pb: 0.5 }}>
 				<h2>{title}</h2>
 				<SearchRoundedIcon
 					sx={{
@@ -257,26 +261,24 @@ export const SimpleCrudTable = ({
 				/>
 
 				{openAdd && (
-					<Box sx={{ width: '100%', flexBasis: '100%', display: 'flex', gap: 1, alignItems: 'center', flexWrap: 'wrap' }}>
-						{fields.map((field) => (
-							<TextField
-								key={field}
-								label={formatHeader(field)}
-								size="small"
-								value={newRow[field] ?? ''}
-								onChange={(e) => setNewRow((prev) => ({ ...prev, [field]: e.target.value }))}
-							/>
-						))}
-						<Button variant="contained" onClick={handleAdd} sx={{ background: '#060745', flexShrink: 0 }}>
-							Add
-						</Button>
-						<Button
-							variant="outlined"
-							onClick={() => setNewRow(createEmptyRecord())}
-							sx={{ borderColor: '#060745', color: '#060745', flexShrink: 0 }}
-						>
-							Clear
-						</Button>
+					<Box sx={{ display: 'flex', gap: 1, alignItems: 'center', flexWrap: 'nowrap', maxWidth: '100%', overflowX: 'auto', overflowY: 'visible', pt: 1, pb: 0.5 }}>
+						<Box sx={{ display: 'flex', gap: 1, flexWrap: 'nowrap' }}>
+							{fields.map((field) => (
+								<TextField
+									key={field}
+									label={formatHeader(field)}
+									size="small"
+									value={newRow[field] ?? ''}
+									onChange={(e) => setNewRow((prev) => ({ ...prev, [field]: e.target.value }))}
+									sx={{ width: 170 }}
+								/>
+							))}
+						</Box>
+						<Box sx={{ display: 'flex', gap: 1, alignItems: 'center', flexShrink: 0 }}>
+							<Button variant="contained" onClick={handleAdd} disabled={isAddDisabled} sx={{ background: '#060745' }}>
+								Add
+							</Button>
+						</Box>
 					</Box>
 				)}
 
