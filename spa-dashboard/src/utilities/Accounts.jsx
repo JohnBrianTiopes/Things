@@ -11,6 +11,7 @@ import TextField from '@mui/material/TextField';
 import Button from '@mui/material/Button';
 import IconButton from '@mui/material/IconButton';
 import AddCircleRoundedIcon from '@mui/icons-material/AddCircleRounded';
+import SearchRoundedIcon from '@mui/icons-material/SearchRounded';
 import EditRoundedIcon from '@mui/icons-material/EditRounded';
 import DeleteRoundedIcon from '@mui/icons-material/DeleteRounded';
 import SaveAltIcon from '@mui/icons-material/SaveAlt';
@@ -26,6 +27,15 @@ const pickValue = (row, key, fallbackMap = {}) => {
 	return row[fallback] ?? '';
 };
 
+const resolveRowId = (row, idKey) => row[idKey] ?? row.id ?? row.account_id ?? row.user_id;
+
+const valueFallbackMap = {
+	account_id: 'id',
+	account_name: 'name',
+	id: 'account_id',
+	name: 'account_name',
+};
+
 export const SimpleCrudTable = ({
 	title,
 	rows = [],
@@ -37,14 +47,27 @@ export const SimpleCrudTable = ({
 	payloadMap,
 	refreshFromApi = true,
 }) => {
+	const fields = React.useMemo(() => {
+		if (Array.isArray(editableColumns) && editableColumns.length > 0) return editableColumns;
+		if (Array.isArray(columns) && columns.length > 0) {
+			return columns.filter((col) => col !== idKey && col !== 'created_at');
+		}
+		if (rows.length > 0) {
+			return Object.keys(rows[0]).filter((col) => col !== idKey && col !== 'created_at');
+		}
+		return [];
+	}, [editableColumns, columns, rows, idKey]);
+
 	const displayColumns = React.useMemo(() => {
 		if (Array.isArray(columns) && columns.length > 0) return columns;
-		return rows.length > 0 ? Object.keys(rows[0]) : [];
-	}, [columns, rows]);
-
-	const fields = editableColumns || displayColumns.filter((col) => col !== idKey && col !== 'created_at');
+		if (rows.length > 0) return Object.keys(rows[0]);
+		return [idKey, ...fields];
+	}, [columns, rows, idKey, fields]);
 	const [localRows, setLocalRows] = React.useState(Array.isArray(rows) ? rows : []);
 	const [openAdd, setOpenAdd] = React.useState(false);
+	const [openSearch, setOpenSearch] = React.useState(false);
+	const [searchKeyword, setSearchKeyword] = React.useState('');
+	const [appliedSearch, setAppliedSearch] = React.useState('');
 	const [editingId, setEditingId] = React.useState(null);
 	const [error, setError] = React.useState('');
 
@@ -55,6 +78,18 @@ export const SimpleCrudTable = ({
 
 	const [newRow, setNewRow] = React.useState(createEmptyRecord);
 	const [editRow, setEditRow] = React.useState({});
+
+	const filteredRows = React.useMemo(() => {
+		if (!appliedSearch) return localRows;
+		const keyword = appliedSearch.toLowerCase();
+		return localRows.filter((row) =>
+			displayColumns.some((column) =>
+				String(pickValue(row, column, { name: 'account_name' }) ?? '')
+					.toLowerCase()
+					.includes(keyword)
+			)
+		);
+	}, [appliedSearch, localRows, displayColumns]);
 
 	React.useEffect(() => {
 		setLocalRows(Array.isArray(rows) ? rows : []);
@@ -105,9 +140,9 @@ export const SimpleCrudTable = ({
 	};
 
 	const startEdit = (row) => {
-		const mapped = Object.fromEntries(fields.map((field) => [field, pickValue(row, field, { name: 'account_name' })]));
+		const mapped = Object.fromEntries(fields.map((field) => [field, pickValue(row, field, valueFallbackMap)]));
 		setEditRow(mapped);
-		setEditingId(row[idKey]);
+		setEditingId(resolveRowId(row, idKey));
 	};
 
 	const cancelEdit = () => {
@@ -159,10 +194,54 @@ export const SimpleCrudTable = ({
 		<Box sx={{ mt: 3 }}>
 			<Box sx={{ display: 'flex', alignItems: 'center', gap: 1, minHeight: '40px', mb: '10px', flexWrap: 'wrap' }}>
 				<h2>{title}</h2>
+				<SearchRoundedIcon
+					sx={{
+						cursor: openAdd ? 'not-allowed' : 'pointer',
+						fontSize: 35,
+						opacity: openAdd ? 0.4 : 1,
+						pointerEvents: openAdd ? 'none' : 'auto',
+						background: '#060745',
+						color: '#eee6e3',
+						padding: '5px',
+						borderRadius: '8px',
+						boxShadow: '0 4px 12px rgba(0,0,0,0.25)',
+						transition: 'all 0.2s',
+					}}
+					onClick={() => {
+						setOpenSearch((prev) => {
+							const next = !prev;
+							if (next) {
+								setOpenAdd(false);
+							} else {
+								setSearchKeyword('');
+								setAppliedSearch('');
+							}
+							return next;
+						});
+					}}
+				/>
+
+				{openSearch && (
+					<Box sx={{ display: 'flex', alignItems: 'center', minWidth: '300px', maxWidth: '420px' }}>
+						<TextField
+							fullWidth
+							label="Search any keyword..."
+							value={searchKeyword}
+							onChange={(e) => setSearchKeyword(e.target.value)}
+							size="small"
+						/>
+						<Button sx={{ ml: 1, background: '#060745' }} variant="contained" onClick={() => setAppliedSearch(searchKeyword)}>
+							Search
+						</Button>
+					</Box>
+				)}
+
 				<AddCircleRoundedIcon
 					sx={{
-						cursor: 'pointer',
+						cursor: openSearch ? 'not-allowed' : 'pointer',
 						fontSize: 30,
+						opacity: openSearch ? 0.4 : 1,
+						pointerEvents: openSearch ? 'none' : 'auto',
 						background: '#060745',
 						color: '#eee6e3',
 						padding: '9px',
@@ -173,6 +252,7 @@ export const SimpleCrudTable = ({
 					onClick={() => {
 						setError('');
 						setOpenAdd((prev) => !prev);
+						setOpenSearch(false);
 					}}
 				/>
 
@@ -216,13 +296,13 @@ export const SimpleCrudTable = ({
 					</TableHead>
 
 					<TableBody>
-						{localRows.length > 0 ? (
-							localRows.map((row, index) => (
-								<TableRow key={row[idKey] || row.account_id || index} sx={{ height: 25 }}>
-									{editingId === row[idKey] ? (
+						{filteredRows.length > 0 ? (
+							filteredRows.map((row, index) => (
+								<TableRow key={resolveRowId(row, idKey) || index} sx={{ height: 25 }}>
+									{editingId === resolveRowId(row, idKey) ? (
 										displayColumns.map((column) => (
 											column === idKey || column === 'created_at' ? (
-												<TableCell key={column} sx={{ py: 0.55 }}>{pickValue(row, column, { name: 'account_name' }) || '-'}</TableCell>
+												<TableCell key={column} sx={{ py: 0.55 }}>{pickValue(row, column, valueFallbackMap) || '-'}</TableCell>
 											) : fields.includes(column) ? (
 												<TableCell key={column} sx={{ py: 0.2 }}>
 													<TextField
@@ -232,19 +312,19 @@ export const SimpleCrudTable = ({
 													/>
 												</TableCell>
 											) : (
-												<TableCell key={column} sx={{ py: 0.55 }}>{pickValue(row, column, { name: 'account_name' }) || '-'}</TableCell>
+												<TableCell key={column} sx={{ py: 0.55 }}>{pickValue(row, column, valueFallbackMap) || '-'}</TableCell>
 											)
 										))
 									) : (
 										displayColumns.map((column) => (
 											<TableCell key={column} sx={{ py: 0.55 }}>
-												{pickValue(row, column, { name: 'account_name' }) || '-'}
+												{pickValue(row, column, valueFallbackMap) || '-'}
 											</TableCell>
 										))
 									)}
 
 									<TableCell sx={{ py: 0.2 }} align="center">
-										{editingId === row[idKey] ? (
+										{editingId === resolveRowId(row, idKey) ? (
 											<>
 												<IconButton onClick={saveEdit}><SaveAltIcon /></IconButton>
 												<IconButton onClick={cancelEdit}><CancelPresentationIcon /></IconButton>
@@ -254,7 +334,7 @@ export const SimpleCrudTable = ({
 										)}
 									</TableCell>
 									<TableCell sx={{ py: 0.2 }} align="center">
-										<IconButton color="error" onClick={() => handleDelete(row[idKey])}>
+										<IconButton color="error" onClick={() => handleDelete(resolveRowId(row, idKey))}>
 											<DeleteRoundedIcon />
 										</IconButton>
 									</TableCell>

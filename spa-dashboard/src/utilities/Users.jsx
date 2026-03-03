@@ -16,7 +16,6 @@ import EditRoundedIcon from '@mui/icons-material/EditRounded';
 import DeleteRoundedIcon from '@mui/icons-material/DeleteRounded';
 import TextField from '@mui/material/TextField';
 import Button from '@mui/material/Button';
-import MenuItem from '@mui/material/MenuItem';
 import { useTheme } from '@mui/material/styles';
 import FirstPageIcon from '@mui/icons-material/FirstPage';
 import KeyboardArrowLeft from '@mui/icons-material/KeyboardArrowLeft';
@@ -74,7 +73,6 @@ const User = () => {
     const [rowsPerPage, setRowsPerPage] = React.useState(5);
     const [openSearch, setOpenSearch] = React.useState(false);
     const [openAdd, setOpenAdd] = React.useState(false);
-    const [accounts, setAccounts] = React.useState([]);
     const [addError, setAddError] = React.useState('');
 
     const [newUser, setNewUser] = React.useState(emptyNewUser);
@@ -83,28 +81,24 @@ const User = () => {
         try {
             const res = await fetch('http://localhost:3001/api/user/');
             const data = await res.json();
-            setUsers(data);
+            const normalizedUsers = Array.isArray(data)
+                ? data.map((row) => ({
+                    ...row,
+                    user_id: row.user_id ?? row.id,
+                    account_id: row.account_id ?? row.account?.account_id ?? row.account?.id ?? '',
+                }))
+                : [];
+            setUsers(normalizedUsers);
         } catch (err) {
             console.error(err);
-        }
-    };
-
-    const fetchAccounts = async () => {
-        try {
-            const res = await fetch('http://localhost:3001/api/account/');
-            const data = await res.json();
-            setAccounts(Array.isArray(data) ? data : []);
-        } catch (err) {
-            console.error(err);
-            setAccounts([]);
+            setUsers([]);
         }
     };
 
     React.useEffect(() => {
         fetchUsers();
-        fetchAccounts();
-        const interval = setInterval(fetchUsers, 5000);
-        return () => clearInterval(interval);
+        const usersInterval = setInterval(fetchUsers, 5000);
+        return () => clearInterval(usersInterval);
     }, []);
 
 
@@ -308,24 +302,17 @@ const User = () => {
                             value={newUser.password}
                             onChange={(e) => setNewUser({ ...newUser, password: e.target.value })}
                         />
-                        <TextField required label="Account ID" size="small" select
+                        <TextField required label="Account ID" size="small"
                             value={newUser.account_id}
                             onChange={(e) => setNewUser({ ...newUser, account_id: e.target.value })}
-                            helperText={accounts.length === 0 ? 'No accounts found. Create an account first.' : 'Select existing account'}
-                        >
-                            {accounts.map((account) => (
-                                <MenuItem key={account.account_id} value={String(account.account_id)}>
-                                    {`${account.account_id} - ${account.account_name || '-'}`}
-                                </MenuItem>
-                            ))}
-                        </TextField>
+                        />
                         <TextField required label="Role" size="small"
                             value={newUser.role}
                             onChange={(e) => setNewUser({ ...newUser, role: e.target.value })}
                         />
                         <Button
                             variant="contained"
-                            disabled={Object.values(newUser).some(v => !v) || accounts.length === 0}
+                            disabled={Object.values(newUser).some(v => !v)}
                             onClick={handleAddUser}
                             sx={{ background: '#060745', flexShrink: 0 }}
                         >
@@ -402,7 +389,7 @@ const User = () => {
                                         <TableCell sx={{ py: 0 }}>{row.name}</TableCell>
                                         <TableCell sx={{ py: 0 }}>{row.email}</TableCell>
                                         <TableCell sx={{ py: 0 }}>{row.role}</TableCell>
-                                        <TableCell sx={{ py: 0 }}>{row.account_id}</TableCell>
+                                        <TableCell sx={{ py: 0 }}>{row.account_id || '-'}</TableCell>
                                         <TableCell sx={{ py: 0 }} align="center">
                                             <IconButton onClick={() => startEdit(row)}>
                                                 <EditRoundedIcon />

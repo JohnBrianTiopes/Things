@@ -682,7 +682,16 @@ app.delete('/api/user/:id', async (req, res) => {
 app.get('/api/accounts-users', async (req, res) => {
   try {
     const [accounts, users] = await Promise.all([
-      dbAll('SELECT * FROM accounts ORDER BY id DESC'),
+      dbAll(`
+        SELECT
+          id AS account_id,
+          name AS account_name,
+          description,
+          location,
+          created_at
+        FROM accounts
+        ORDER BY id DESC
+      `),
       dbAll('SELECT id AS user_id, created_at, name, email, account_id, role FROM users ORDER BY id DESC')
     ]);
     res.json({ accounts, users });
@@ -744,12 +753,15 @@ app.get('/api/logs-monitoring', async (req, res) => {
 
 app.get('/api/sales-crops', async (req, res) => {
   try {
-    const [sales, crop_varieties] = await Promise.all([
+    const [planting_batch, production, harvests, sales, crop_varieties] = await Promise.all([
+      dbAll('SELECT * FROM planting_batch ORDER BY id DESC'),
+      dbAll('SELECT * FROM production ORDER BY id DESC'),
+      dbAll('SELECT * FROM harvests ORDER BY id DESC'),
       dbAll('SELECT * FROM sales ORDER BY id DESC'),
       dbAll('SELECT * FROM crop_varieties ORDER BY id DESC')
     ]);
 
-    res.json({ sales, crop_varieties });
+    res.json({ planting_batch, production, harvests, sales, crop_varieties });
   } catch (err) {
     console.error(err);
     res.status(500).json({ error: 'Failed to fetch sales and crops data' });

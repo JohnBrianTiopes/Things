@@ -17,8 +17,6 @@ import Equipment from '../utilities/Equipment'
 import Supplies from '../utilities/Supplies'
 import FarmSupplies from '../utilities/Farm_supplies'
 import FinancialRecord from '../utilities/Financial_record'
-import AgentConversation from '../utilities/Agent_conversation'
-import AgentMessages from '../utilities/Agent_messages'
 import PestDiseaseEvent from '../utilities/Pest_disease_event'
 import EventLog from '../utilities/Event_log'
 import WeatherLog from '../utilities/Weather_log'
@@ -41,10 +39,7 @@ const tabsConfig = [
         endpoint: 'http://localhost:3001/api/farms-data',
         components: {
             farms: Farms,
-            farmer: Farmer,
-            planting_batch: PlantingBatch,
-            production: Production,
-            harvests: Harvests
+            farmer: Farmer
         }
     },
     {
@@ -63,8 +58,6 @@ const tabsConfig = [
         label: 'Monitoring & Logs',
         endpoint: 'http://localhost:3001/api/logs-monitoring',
         components: {
-            agent_conversation: AgentConversation,
-            agent_messages: AgentMessages,
             pest_disease_event: PestDiseaseEvent,
             event_log: EventLog,
             weather_log: WeatherLog
@@ -75,6 +68,9 @@ const tabsConfig = [
         label: 'Sales & Crops',
         endpoint: 'http://localhost:3001/api/sales-crops',
         components: {
+            planting_batch: PlantingBatch,
+            production: Production,
+            harvests: Harvests,
             sales: Sales,
             crop_varieties: CropVarieties
         }
