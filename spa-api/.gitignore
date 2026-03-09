@@ -1,0 +1,3 @@
+# spa-api local artifacts
+node_modules/
+spa.db
