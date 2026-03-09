@@ -5,52 +5,53 @@ import AddCircleIcon from '@mui/icons-material/AddCircle';
 import LogoutIcon from '@mui/icons-material/Logout';
 import { Link } from 'react-router-dom';
 import SettingIcon from '@mui/icons-material/Settings';
+import ChatIcon from '@mui/icons-material/Chat';
 
 const utilityGroups = [
     {
         label: 'Accounts & User',
         tab: '1',
         links: [
-            { label: 'Users', section: 'users' },
-            { label: 'Accounts', section: 'accounts' }
+            { label: 'Users' },
+            { label: 'Accounts' }
         ]
     },
     {
         label: 'Farms Data',
         tab: '2',
         links: [
-            { label: 'Farms', section: 'farms' },
-            { label: 'Farmer', section: 'farmer' }
+            { label: 'Farms' },
+            { label: 'Farmer' }
         ]
     },
     {
         label: 'Resource & Finance',
         tab: '3',
         links: [
-            { label: 'Equipment', section: 'equipment' },
-            { label: 'Supplies', section: 'supplies' },
-            { label: 'Farm Supplies', section: 'farm_supplies' },
-            { label: 'Financial Record', section: 'financial_record' }
+            { label: 'Equipment' },
+            { label: 'Supplies' },
+            { label: 'Farm Supplies' },
+            { label: 'Financial Record' }
         ]
     },
     {
         label: 'Monitoring & Logs',
         tab: '4',
         links: [
-            { label: 'Pest Disease Event', section: 'pest_disease_event' },
-            { label: 'Event Log', section: 'event_log' },
-            { label: 'Weather Log', section: 'weather_log' }
+            { label: 'Pest Disease Event' },
+            { label: 'Event Log' },
+            { label: 'Weather Log' }
         ]
     },
     {
         label: 'Sales & Crops',
         tab: '5',
         links: [
-            { label: 'Planting Batch', section: 'planting_batch' },
-            { label: 'Production', section: 'production' },
-            { label: 'Harvests', section: 'harvests' },
-            { label: 'Sales', section: 'sales' },
-            { label: 'Crop Varieties', section: 'crop_varieties' }
+            { label: 'Planting Batch' },
+            { label: 'Production' },
+            { label: 'Harvests' },
+            { label: 'Sales' },
+            { label: 'Crop Varieties' }
         ]
     }
 ]
@@ -92,8 +93,8 @@ const Sidebar = () => {
                                     <div className="util-sub-dropdown">
                                         {group.links.map((item) => (
                                             <Link
-                                                key={`${group.tab}-${item.section}`}
-                                                to={`/utility?tab=${group.tab}&section=${item.section}`}
+                                                key={`${group.tab}-${item.label}`}
+                                                to={`/utility?tab=${group.tab}`}
                                                 className="util-drop-item"
                                             >
                                                 {item.label}
@@ -104,6 +105,11 @@ const Sidebar = () => {
                             ))}
                         </div>
                     </div>
+
+                    <Link to="/agent-messages" className="side-item">
+                        <ChatIcon />
+                        <span>Agent Messages</span>
+                    </Link>
 
                     <Link to="/dashboard" className="side-item">
                         <SettingIcon />

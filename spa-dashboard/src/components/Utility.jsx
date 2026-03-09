@@ -93,7 +93,6 @@ const Utility = () => {
         setValue(newValue)
         const nextParams = new URLSearchParams(searchParams)
         nextParams.set('tab', newValue)
-        nextParams.delete('section')
         setSearchParams(nextParams)
     }
 
@@ -119,23 +118,6 @@ const Utility = () => {
 
         fetchData()
     }, [value])
-
-    React.useEffect(() => {
-        const section = searchParams.get('section')
-        const tab = searchParams.get('tab')
-
-        if (!section) return
-        if (tab && tab !== value) return
-
-        const timer = setTimeout(() => {
-            const el = document.getElementById(`util-${section}`)
-            if (el) {
-                el.scrollIntoView({ behavior: 'smooth', block: 'start' })
-            }
-        }, 120)
-
-        return () => clearTimeout(timer)
-    }, [searchParams, value, rows])
 
     return (
         <div className="main-util">
@@ -167,7 +149,7 @@ const Utility = () => {
                     <TabPanel key={tab.value} value={value} index={tab.value}>
                         {tab.components
                             ? Object.entries(tab.components).map(([key, Comp]) => (
-                                <Box key={key} id={`util-${key}`}>
+                                <Box key={key}>
                                     <Comp rows={rows[key]} />
                                 </Box>
                             ))
