@@ -8,6 +8,7 @@ const AgentMessages = ({ rows = [] }) => (
 		endpoint="http://localhost:3001/api/agent_messages/"
 		editableColumns={['conversation_id', 'role', 'content']}
 		emptyMessage="No agent messages found."
+		enablePagination={false}
 	/>
 )
 

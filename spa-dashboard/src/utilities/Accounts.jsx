@@ -6,6 +6,8 @@ import TableCell from '@mui/material/TableCell';
 import TableContainer from '@mui/material/TableContainer';
 import TableHead from '@mui/material/TableHead';
 import TableRow from '@mui/material/TableRow';
+import TableFooter from '@mui/material/TableFooter';
+import TablePagination from '@mui/material/TablePagination';
 import Paper from '@mui/material/Paper';
 import TextField from '@mui/material/TextField';
 import Button from '@mui/material/Button';
@@ -46,6 +48,7 @@ export const SimpleCrudTable = ({
 	emptyMessage,
 	payloadMap,
 	refreshFromApi = true,
+	enablePagination = true,
 }) => {
 	const fields = React.useMemo(() => {
 		if (Array.isArray(editableColumns) && editableColumns.length > 0) return editableColumns;
@@ -70,6 +73,8 @@ export const SimpleCrudTable = ({
 	const [appliedSearch, setAppliedSearch] = React.useState('');
 	const [editingId, setEditingId] = React.useState(null);
 	const [error, setError] = React.useState('');
+	const [page, setPage] = React.useState(0);
+	const [rowsPerPage, setRowsPerPage] = React.useState(5);
 
 	const createEmptyRecord = React.useCallback(
 		() => Object.fromEntries(fields.map((field) => [field, ''])),
@@ -95,6 +100,12 @@ export const SimpleCrudTable = ({
 		);
 	}, [appliedSearch, localRows, displayColumns]);
 
+	const paginatedRows = React.useMemo(() => {
+		if (!enablePagination || rowsPerPage === -1) return filteredRows;
+		const start = page * rowsPerPage;
+		return filteredRows.slice(start, start + rowsPerPage);
+	}, [enablePagination, filteredRows, page, rowsPerPage]);
+
 	React.useEffect(() => {
 		setLocalRows(Array.isArray(rows) ? rows : []);
 	}, [rows]);
@@ -102,6 +113,10 @@ export const SimpleCrudTable = ({
 	React.useEffect(() => {
 		setNewRow(createEmptyRecord());
 	}, [createEmptyRecord]);
+
+	React.useEffect(() => {
+		setPage(0);
+	}, [appliedSearch, rowsPerPage, localRows.length]);
 
 	const normalizePayload = (record) => {
 		if (!payloadMap) return record;
@@ -192,6 +207,15 @@ export const SimpleCrudTable = ({
 			console.error(err);
 			setError('Network error while deleting record.');
 		}
+	};
+
+	const handleChangePage = (event, newPage) => {
+		setPage(newPage);
+	};
+
+	const handleChangeRowsPerPage = (event) => {
+		setRowsPerPage(parseInt(event.target.value, 10));
+		setPage(0);
 	};
 
 	return (
@@ -299,7 +323,7 @@ export const SimpleCrudTable = ({
 
 					<TableBody>
 						{filteredRows.length > 0 ? (
-							filteredRows.map((row, index) => (
+							paginatedRows.map((row, index) => (
 								<TableRow key={resolveRowId(row, idKey) || index} sx={{ height: 25 }}>
 									{editingId === resolveRowId(row, idKey) ? (
 										displayColumns.map((column) => (
@@ -350,6 +374,23 @@ export const SimpleCrudTable = ({
 							</TableRow>
 						)}
 					</TableBody>
+					{enablePagination && (
+						<TableFooter>
+							<TableRow>
+								<TablePagination
+									rowsPerPageOptions={[5, 10, 25, { label: 'All', value: -1 }]}
+									colSpan={displayColumns.length + 2}
+									count={filteredRows.length}
+									rowsPerPage={rowsPerPage}
+									page={page}
+									onPageChange={handleChangePage}
+									onRowsPerPageChange={handleChangeRowsPerPage}
+									showFirstButton
+									showLastButton
+								/>
+							</TableRow>
+						</TableFooter>
+					)}
 				</Table>
 			</TableContainer>
 		</Box>

@@ -16,44 +16,8 @@ import EditRoundedIcon from '@mui/icons-material/EditRounded';
 import DeleteRoundedIcon from '@mui/icons-material/DeleteRounded';
 import TextField from '@mui/material/TextField';
 import Button from '@mui/material/Button';
-import { useTheme } from '@mui/material/styles';
-import FirstPageIcon from '@mui/icons-material/FirstPage';
-import KeyboardArrowLeft from '@mui/icons-material/KeyboardArrowLeft';
-import KeyboardArrowRight from '@mui/icons-material/KeyboardArrowRight';
-import LastPageIcon from '@mui/icons-material/LastPage';
 import CancelPresentationIcon from '@mui/icons-material/CancelPresentation';
 import SaveAltIcon from '@mui/icons-material/SaveAlt';
-
-
-function TablePaginationActions(props) {
-    const theme = useTheme();
-    const { count, page, rowsPerPage, onPageChange } = props;
-
-    return (
-        <Box sx={{ flexShrink: 0, ml: 2.5 }}>
-            <IconButton onClick={(e) => onPageChange(e, 0)} disabled={page === 0}>
-                {theme.direction === 'rtl' ? <LastPageIcon /> : <FirstPageIcon />}
-            </IconButton>
-            <IconButton onClick={(e) => onPageChange(e, page - 1)} disabled={page === 0}>
-                {theme.direction === 'rtl' ? <KeyboardArrowRight /> : <KeyboardArrowLeft />}
-            </IconButton>
-            <IconButton 
-                onClick={(e) => onPageChange(e, page + 1)}
-                disabled={page >= Math.ceil(count / rowsPerPage) - 1}
-                >
-                    {theme.direction === 'rtl' ? <KeyboardArrowLeft /> : <KeyboardArrowRight />}
-            </IconButton>
-            <IconButton
-            onClick={(e) =>
-                onPageChange(e, Math.max(0, Math.ceil(count / rowsPerPage) - 1))
-                }
-                disabled={page >= Math.ceil(count / rowsPerPage) - 1}
-                >
-                {theme.direction === 'rtl' ? <FirstPageIcon /> : <LastPageIcon />}
-            </IconButton>
-        </Box>
-    );
-}
 
 const User = () => {
     const emptyNewUser = {
@@ -431,14 +395,15 @@ const User = () => {
                     <TableFooter>
                         <TableRow>
                             <TablePagination
-                                rowsPerPageOptions={[3, 5, 10, 25, { label: 'All', value: -1 }]}
+                                rowsPerPageOptions={[5, 10, 25, { label: 'All', value: -1 }]}
                                 colSpan={7}
                                 count={filteredRows.length}
                                 rowsPerPage={rowsPerPage}
                                 page={page}
                                 onPageChange={handleChangePage}
                                 onRowsPerPageChange={handleChangeRowsPerPage}
-                                ActionsComponent={TablePaginationActions}
+                                showFirstButton
+                                showLastButton
                                 sx={{
                                     py: 0.75,
                                     '& .MuiTablePagination-toolbar': {
