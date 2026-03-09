@@ -1,0 +1,3 @@
+# Root ignores for workspace artifacts
+spa-api/node_modules/
+spa-api/spa.db
