@@ -389,7 +389,7 @@ registerCrudRoutes({
   pathName: 'farmer',
   tableName: 'farmer',
   columns: ['name', 'farm_id', 'role', 'salary', 'contact_info'],
-  requiredFields: ['name']
+  requiredFields: ['name', 'farm_id']
 });
 
 registerCrudRoutes({

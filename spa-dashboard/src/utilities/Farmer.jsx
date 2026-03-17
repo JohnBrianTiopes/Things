@@ -7,7 +7,7 @@ const Farmer = ({ rows = [] }) => (
     rows={rows}
     endpoint="http://localhost:3001/api/farmer/"
     editableColumns={['name', 'farm_id', 'role', 'salary', 'contact_info']}
-    requiredFields={['name']}
+    requiredFields={['name', 'farm_id']}
     payloadMap={(record) => {
       const farmIdRaw = String(record.farm_id ?? '').trim();
       const salaryRaw = String(record.salary ?? '').trim();
