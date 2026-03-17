@@ -44,6 +44,7 @@ export const SimpleCrudTable = ({
 	endpoint,
 	columns,
 	editableColumns,
+	requiredFields,
 	idKey = 'id',
 	emptyMessage,
 	payloadMap,
@@ -83,9 +84,14 @@ export const SimpleCrudTable = ({
 
 	const [newRow, setNewRow] = React.useState(createEmptyRecord);
 	const [editRow, setEditRow] = React.useState({});
+	const effectiveRequiredFields = React.useMemo(() => {
+		if (Array.isArray(requiredFields) && requiredFields.length > 0) return requiredFields;
+		return fields;
+	}, [requiredFields, fields]);
+
 	const isAddDisabled = React.useMemo(
-		() => fields.some((field) => String(newRow[field] ?? '').trim() === ''),
-		[fields, newRow]
+		() => effectiveRequiredFields.some((field) => String(newRow[field] ?? '').trim() === ''),
+		[effectiveRequiredFields, newRow]
 	);
 
 	const filteredRows = React.useMemo(() => {
@@ -137,6 +143,12 @@ export const SimpleCrudTable = ({
 	const handleAdd = async () => {
 		try {
 			setError('');
+			const missingRequired = effectiveRequiredFields.filter((field) => String(newRow[field] ?? '').trim() === '');
+			if (missingRequired.length > 0) {
+				setError(`Please fill required field(s): ${missingRequired.map(formatHeader).join(', ')}`);
+				return;
+			}
+
 			const res = await fetch(endpoint, {
 				method: 'POST',
 				headers: { 'Content-Type': 'application/json' },
@@ -220,7 +232,7 @@ export const SimpleCrudTable = ({
 
 	return (
 		<Box sx={{ mt: 3 }}>
-			<Box sx={{ display: 'flex', alignItems: 'center', gap: 1, minHeight: '40px', mb: '10px', flexWrap: 'nowrap', pt: 1, pb: 0.5 }}>
+			<Box sx={{ display: 'flex', alignItems: 'center', gap: 1, minHeight: '40px', mb: '10px', flexWrap: 'wrap', pt: 1, pb: 0.5 }}>
 				<h2>{title}</h2>
 				<SearchRoundedIcon
 					sx={{
@@ -306,7 +318,7 @@ export const SimpleCrudTable = ({
 					</Box>
 				)}
 
-				{error && <Box sx={{ color: '#dd5752', width: '100%', fontSize: 13 }}>{error}</Box>}
+				{error && <Box sx={{ color: '#dd5752', width: '100%', fontSize: 13, mt: 0.5 }}>{error}</Box>}
 			</Box>
 
 			<TableContainer component={Paper} sx={{ borderRadius: '12px', boxShadow: '0 4px 20px rgba(0,0,0,0.25)', padding: '10px' }}>

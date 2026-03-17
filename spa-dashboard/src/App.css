@@ -51,6 +51,34 @@ h1{
     justify-content: flex-start;
     gap: 12px;
 }
+
+.dash-chart{
+    margin-top: 16px;
+    width: 100%;
+    max-width: 980px;
+}
+
+@media (max-width: 980px){
+    .dash-header{
+        flex-wrap: wrap;
+        gap: 10px;
+    }
+
+    .dash-figs{
+        margin-left: 0;
+        width: 100%;
+    }
+
+    .dash-figs .figs{
+        width: 100%;
+        flex-wrap: wrap;
+        justify-content: flex-start;
+    }
+
+    .dash-chart{
+        max-width: 100%;
+    }
+}
 .dash-logo{
     width: 36px;
     height: auto;

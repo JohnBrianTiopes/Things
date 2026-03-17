@@ -63,7 +63,7 @@ const Sidebar = () => {
 
             <div className="sidem-inner">
                 <div className="side-op">
-                    <Link to="/" className="side-item">
+                    <Link to="/home" className="side-item">
                         <HomeIcon />
                         <span>Home</span>
                     </Link>

@@ -326,6 +326,12 @@ const registerCrudRoutes = ({ pathName, tableName, columns, requiredFields = [] 
       res.status(201).json({ success: true, id: result.id });
     } catch (err) {
       console.error(err);
+      if (err && err.code === 'SQLITE_CONSTRAINT') {
+        return res.status(400).json({
+          success: false,
+          error: `Invalid or conflicting data for ${pathName}. ${err.message}`,
+        });
+      }
       res.status(500).json({ success: false, error: `Failed to create ${pathName}` });
     }
   });
@@ -792,5 +798,26 @@ process.on('SIGINT', () => {
     db.close(() => {
       process.exit(0);
     });
+  });
+});
+
+app.get('/api/data-count', async (req, res) => {
+  const sql = `
+    SELECT
+      (SELECT COUNT(*) FROM farms) AS farms,
+      (SELECT COUNT(*) FROM farmer) AS farmer,
+      (SELECT COUNT(*) FROM users) AS users,
+      (SELECT COUNT(*) FROM harvests) AS harvests,
+      (SELECT COUNT(*) FROM crop_varieties) AS variety
+  `;
+  db.get(sql, [], (err, row) => {
+    console.log("SQL ERROR:", err);
+    console.log("ROW:", row);
+
+    if (err) {
+      return res.status(500).json({ success: false, error: 'Failed to fetch data counts' });
+    }
+
+    res.json(row);
   });
 });

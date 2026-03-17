@@ -2,6 +2,7 @@ import React from "react";
 import Sidebar from  '../components/Sidebar';
 import '../App.css';
 import QuantFigures from '../components/QuantFigures';
+import Charts from '../components/Charts';
 import DashboardIcon from '@mui/icons-material/Dashboard';
 
 const Dashboard = () => {
@@ -16,6 +17,9 @@ const Dashboard = () => {
                             <div className='dash-figs'>
                                 <QuantFigures/>
                             </div>
+                        </div>
+                        <div className='dash-chart'>
+                            <Charts />
                         </div>
                     </div>
                 </div>
